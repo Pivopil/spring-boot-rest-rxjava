@@ -1,2 +1,2 @@
-# spring-boot-rest-rxjava
-spring-boot-rest-rxjava
+# Spring Boot RxJava
+Spring Boot RxJava
