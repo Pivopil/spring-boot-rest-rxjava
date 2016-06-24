@@ -2,12 +2,18 @@ package io.github.pivopil.rest.controllers;
 
 import io.github.pivopil.REST_API;
 import io.github.pivopil.rest.services.CustomUserDetailsService;
+import io.github.pivopil.rest.viewmodels.UserView;
 import io.github.pivopil.share.entities.impl.User;
+import io.github.pivopil.share.throwble.CustomError;
+import io.github.pivopil.share.throwble.ExceptionAdapter;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.context.request.async.DeferredResult;
+import rx.Observable;
 
 @RestController
 public class UserController {
@@ -16,8 +22,16 @@ public class UserController {
     private CustomUserDetailsService customUserDetailsService;
 
     @RequestMapping(REST_API.ME)
-    public UserDetails me(@AuthenticationPrincipal User user) {
-        return customUserDetailsService.loadUserByUsername(user.getName());
+    public DeferredResult<ResponseEntity<UserView>> me(@AuthenticationPrincipal User user) {
+        DeferredResult<ResponseEntity<UserView>> deferredResult = new DeferredResult<>();
+
+        customUserDetailsService.me(user.getName())
+                .onErrorResumeNext(e -> Observable.error(new ExceptionAdapter("Unknown user",
+                        CustomError.BAD_USER, HttpStatus.NOT_FOUND)))
+                .subscribe(userView -> deferredResult.setResult(ResponseEntity.accepted().body(userView)),
+                        deferredResult::setErrorResult);
+
+        return deferredResult;
     }
 
     @RequestMapping(REST_API.USERS)
