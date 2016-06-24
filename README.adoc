@@ -1,0 +1,20 @@
+= Spring Boot RxJava REST Server with Postgres Async Driver
+
+Spring Boot OAuth2 REST server developed with RxJava lib and Postgres Async Driver.
+The REST server is based on the https://github.com/Pivopil/spring-boot-oauth2-rest-service-password-encoding/[Spring Boot OAuth2 REST Server with Password Encoding] app.
+
+== Projects
+
+The following projects are used in this sample app:
+
+* http://projects.spring.io/spring-boot/[Spring Boot]
+* http://docs.spring.io/spring/docs/current/spring-framework-reference/html/mvc.html[Spring MVC]
+* http://projects.spring.io/spring-security/[Spring Security]
+* http://projects.spring.io/spring-security-oauth/[Spring Security OAuth]
+* http://projects.spring.io/spring-data-jpa/[Spring Data JPA]
+* https://github.com/brettwooldridge/HikariCP/[HikariCP]
+* https://github.com/ReactiveX/RxJava[RxJava]
+* https://github.com/alaisi/postgres-async-driver[Asynchronous PostgreSQL Java driver]
+
+
+
