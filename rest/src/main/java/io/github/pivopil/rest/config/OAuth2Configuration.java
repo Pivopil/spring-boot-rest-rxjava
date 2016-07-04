@@ -79,6 +79,8 @@ public class OAuth2Configuration extends WebSecurityConfigurerAdapter {
             http
                     .authorizeRequests()
                     .antMatchers(REST_API.USERS).hasRole("ADMIN")
+                    .antMatchers(REST_API.HEALTH).hasRole("ADMIN")
+                    .antMatchers(REST_API.HEALTH_JSON).hasRole("ADMIN")
                     .antMatchers(REST_API.ME).authenticated();
             // @formatter:on
         }
