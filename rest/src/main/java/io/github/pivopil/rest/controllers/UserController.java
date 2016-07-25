@@ -39,4 +39,18 @@ public class UserController {
         return customUserDetailsService.findAll();
     }
 
+    @RequestMapping(REST_API.USERS + "rx")
+    public DeferredResult<ResponseEntity<Iterable<User>>> getUsersRx() {
+
+        DeferredResult<ResponseEntity<Iterable<User>>> deferredResult = new DeferredResult<>();
+
+        customUserDetailsService.findAllRx()
+                .onErrorResumeNext(e -> Observable.error(new ExceptionAdapter("Error getting users",
+                        CustomError.DATABASE, HttpStatus.NOT_FOUND)))
+                .subscribe(userView -> deferredResult.setResult(ResponseEntity.accepted().body(userView)),
+                        deferredResult::setErrorResult);
+
+        return deferredResult;
+    }
+
 }

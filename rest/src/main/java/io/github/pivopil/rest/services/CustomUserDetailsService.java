@@ -3,6 +3,7 @@ package io.github.pivopil.rest.services;
 import io.github.pivopil.rest.viewmodels.UserView;
 import io.github.pivopil.share.entities.impl.Role;
 import io.github.pivopil.share.entities.impl.User;
+import io.github.pivopil.share.persistence.RoleRepository;
 import io.github.pivopil.share.persistence.UserRepository;
 import io.github.pivopil.share.throwble.CustomError;
 import io.github.pivopil.share.throwble.ExceptionAdapter;
@@ -14,14 +15,21 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import rx.Observable;
+import rx.functions.Func2;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
 public class CustomUserDetailsService implements UserDetailsService {
 
     private final UserRepository userRepository;
+
+    @Autowired
+    private RoleRepository roleRepository;
 
     @Autowired
     public CustomUserDetailsService(UserRepository userRepository) {
@@ -48,6 +56,34 @@ public class CustomUserDetailsService implements UserDetailsService {
 
     public Iterable<User> findAll() {
         return userRepository.findAll();
+    }
+
+    // http://techblog.netflix.com/2013/02/rxjava-netflix-api.html
+    public Observable<Iterable<User>> findAllRx() {
+        try {
+            return ((ArrayList<User>) userRepository.findAll()).stream().map(user -> {
+
+                Map<String, String> userData = new HashMap<>();
+
+                Map<String, String> roleData = new HashMap<>();
+
+
+                return Observable.zip(Observable.<Map<String, String>>just(userData), Observable.<Map<String, String>just(roleData),
+
+                        (Func2<Map<String, String>, Map<String, String>, Map<String, String>>) (ud, rd) -> {
+                            ud.putAll(rd);
+                            return ud;
+                        }
+                );
+
+
+            });
+
+        } catch (Exception e) {
+            return Observable.error(new ExceptionAdapter("Error while getting users from database",
+                    CustomError.DATABASE, HttpStatus.INTERNAL_SERVER_ERROR, e));
+        }
+//        return userRepository.findAll();
     }
 
     private final static class UserRepositoryUserDetails extends User implements UserDetails {
