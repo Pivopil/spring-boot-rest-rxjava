@@ -1,5 +1,8 @@
 package io.github.pivopil.rest.services;
 
+import com.github.pgasync.Db;
+import com.github.pgasync.ResultSet;
+import com.github.pgasync.Row;
 import io.github.pivopil.rest.viewmodels.UserView;
 import io.github.pivopil.share.entities.impl.Role;
 import io.github.pivopil.share.entities.impl.User;
@@ -69,7 +72,6 @@ public class CustomUserDetailsService implements UserDetailsService {
 
 
                 return Observable.zip(Observable.<Map<String, String>>just(userData), Observable.<Map<String, String>just(roleData),
-
                         (Func2<Map<String, String>, Map<String, String>, Map<String, String>>) (ud, rd) -> {
                             ud.putAll(rd);
                             return ud;
