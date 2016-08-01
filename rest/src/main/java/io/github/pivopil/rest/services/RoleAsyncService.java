@@ -13,7 +13,7 @@ import rx.Observable;
 @Service
 public class RoleAsyncService {
 
-    public static final String SELECT_ROLES = "select * from roles";
+    public static final String SELECT_ROLES = "select * from role";
 
     @Autowired
     private Db postgresAsyncConnectionPool;
