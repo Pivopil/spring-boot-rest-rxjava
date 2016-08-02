@@ -64,22 +64,23 @@ public class CustomUserDetailsService implements UserDetailsService {
     // http://techblog.netflix.com/2013/02/rxjava-netflix-api.html
     public Observable<Iterable<User>> findAllRx() {
         try {
-            return ((ArrayList<User>) userRepository.findAll()).stream().map(user -> {
-
-                Map<String, String> userData = new HashMap<>();
-
-                Map<String, String> roleData = new HashMap<>();
-
-
-                return Observable.zip(Observable.<Map<String, String>>just(userData), Observable.<Map<String, String>just(roleData),
-                        (Func2<Map<String, String>, Map<String, String>, Map<String, String>>) (ud, rd) -> {
-                            ud.putAll(rd);
-                            return ud;
-                        }
-                );
-
-
-            });
+            return Observable.just(userRepository.findAll());
+//                    ((ArrayList<User>) userRepository.findAll()).stream().map(user -> {
+//
+//                Map<String, String> userData = new HashMap<>();
+//
+//                Map<String, String> roleData = new HashMap<>();
+//
+//
+//                return Observable.zip(Observable.<Map<String, String>>just(userData), Observable.<Map<String, String>>just(roleData),
+//                        (Func2<Map<String, String>, Map<String, String>, Map<String, String>>) (ud, rd) -> {
+//                            ud.putAll(rd);
+//                            return ud;
+//                        }
+//                );
+//
+//
+//            });
 
         } catch (Exception e) {
             return Observable.error(new ExceptionAdapter("Error while getting users from database",

@@ -19,12 +19,28 @@ public class RoleAsyncService {
     private Db postgresAsyncConnectionPool;
 
 
-    public Observable<Row> findAllRolesInDBAsRows(){
+    public Observable<Row> findAllRolesInDBAsRows() {
         return postgresAsyncConnectionPool.queryRows(SELECT_ROLES);
     }
 
-    public Observable<ResultSet> findAllRolesInDBAsResultSet(){
+    public Observable<ResultSet> findAllRolesInDBAsResultSet() {
         return postgresAsyncConnectionPool.querySet(SELECT_ROLES);
     }
+
+
+//    public static void main(String... args) {
+//        try {
+//            findAllRolesInDBAsRows().map(row -> row.getString("name")).toList()
+//                    .subscribe(System.out::println);
+//        } catch (Exception e) {
+//            Observable.error(e).subscribe(System.out::println);
+//        } finally {
+//            try {
+//                postgresAsyncConnectionPool.close();
+//            } catch (Exception e) {
+//                e.printStackTrace();
+//            }
+//        }
+//    }
 
 }
