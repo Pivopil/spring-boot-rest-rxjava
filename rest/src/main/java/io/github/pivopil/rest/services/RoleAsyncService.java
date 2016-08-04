@@ -18,7 +18,7 @@ public class RoleAsyncService {
     @Autowired
     private Db postgresAsyncConnectionPool;
 
-
+    // https://github.com/alaisi/postgres-async-driver
     public Observable<Row> findAllRolesInDBAsRows() {
         return postgresAsyncConnectionPool.queryRows(SELECT_ROLES);
     }

@@ -76,7 +76,7 @@ public class CustomUserDetailsService implements UserDetailsService {
                 user.setLogin(userRow.getString("login"));
                 Set<Role> roles = new HashSet<>();
 
-                return new User();
+                return user;
 
 //                return Observable.zip(Observable.<User>just(user), Observable.<Set<Role>>just(roles),
 //                        (Func2<User, Set<Role>, User) (u, r) -> {
