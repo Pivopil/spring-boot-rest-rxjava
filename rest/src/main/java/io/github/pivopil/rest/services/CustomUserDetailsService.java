@@ -20,10 +20,7 @@ import org.springframework.stereotype.Service;
 import rx.Observable;
 import rx.functions.Func2;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -33,6 +30,9 @@ public class CustomUserDetailsService implements UserDetailsService {
 
     @Autowired
     private RoleRepository roleRepository;
+
+    @Autowired
+    private UserAsyncService userAsyncService;
 
     @Autowired
     public CustomUserDetailsService(UserRepository userRepository) {
@@ -61,26 +61,29 @@ public class CustomUserDetailsService implements UserDetailsService {
         return userRepository.findAll();
     }
 
-    // http://techblog.netflix.com/2013/02/rxjava-netflix-api.html
-    public Observable<Iterable<User>> findAllRx() {
+    /*
+        http://techblog.netflix.com/2013/02/rxjava-netflix-api.html
+        https://stackoverflow.com/questions/22240406/rxjava-how-to-compose-multiple-observables-with-dependencies-and-collect-all-re
+        https://stackoverflow.com/questions/21890338/when-should-one-use-rxjava-observable-and-when-simple-callback-on-android
+        http://blog.danlew.net/2015/06/22/loading-data-from-multiple-sources-with-rxjava/
+    */
+    public Observable<List<User>> findAllRx() {
         try {
-            return Observable.just(userRepository.findAll());
-//                    ((ArrayList<User>) userRepository.findAll()).stream().map(user -> {
-//
-//                Map<String, String> userData = new HashMap<>();
-//
-//                Map<String, String> roleData = new HashMap<>();
-//
-//
-//                return Observable.zip(Observable.<Map<String, String>>just(userData), Observable.<Map<String, String>>just(roleData),
-//                        (Func2<Map<String, String>, Map<String, String>, Map<String, String>>) (ud, rd) -> {
-//                            ud.putAll(rd);
-//                            return ud;
+            return userAsyncService.findAllUsersInDBAsRows().map(userRow -> {
+                User user = new User();
+                user.setId(userRow.getLong("id"));
+                user.setName(userRow.getString("name"));
+                user.setLogin(userRow.getString("login"));
+                Set<Role> roles = new HashSet<>();
+
+                return new User();
+
+//                return Observable.zip(Observable.<User>just(user), Observable.<Set<Role>>just(roles),
+//                        (Func2<User, Set<Role>, User) (u, r) -> {
+//                            return u.setRoles(r);
 //                        }
 //                );
-//
-//
-//            });
+            }).toList();
 
         } catch (Exception e) {
             return Observable.error(new ExceptionAdapter("Error while getting users from database",

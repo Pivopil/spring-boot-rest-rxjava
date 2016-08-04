@@ -15,6 +15,8 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.context.request.async.DeferredResult;
 import rx.Observable;
 
+import java.util.List;
+
 @RestController
 public class UserController {
 
@@ -40,9 +42,9 @@ public class UserController {
     }
 
     @RequestMapping(REST_API.USERS + "rx")
-    public DeferredResult<ResponseEntity<Iterable<User>>> getUsersRx() {
+    public DeferredResult<ResponseEntity<List<User>>> getUsersRx() {
 
-        DeferredResult<ResponseEntity<Iterable<User>>> deferredResult = new DeferredResult<>();
+        DeferredResult<ResponseEntity<List<User>>> deferredResult = new DeferredResult<>();
 
         customUserDetailsService.findAllRx()
                 .onErrorResumeNext(e -> Observable.error(new ExceptionAdapter("Error getting users",
