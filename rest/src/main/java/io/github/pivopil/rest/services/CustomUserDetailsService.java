@@ -35,6 +35,9 @@ public class CustomUserDetailsService implements UserDetailsService {
     private UserAsyncService userAsyncService;
 
     @Autowired
+    private RoleAsyncService roleAsyncService;
+
+    @Autowired
     public CustomUserDetailsService(UserRepository userRepository) {
         this.userRepository = userRepository;
     }
@@ -67,23 +70,25 @@ public class CustomUserDetailsService implements UserDetailsService {
         https://stackoverflow.com/questions/21890338/when-should-one-use-rxjava-observable-and-when-simple-callback-on-android
         http://blog.danlew.net/2015/06/22/loading-data-from-multiple-sources-with-rxjava/
     */
-    public Observable<List<User>> findAllRx() {
+    public Observable<User> findAllRx() {
         try {
             return userAsyncService.findAllUsersInDBAsRows().map(userRow -> {
                 User user = new User();
                 user.setId(userRow.getLong("id"));
                 user.setName(userRow.getString("name"));
                 user.setLogin(userRow.getString("login"));
-                Set<Role> roles = new HashSet<>();
 
-                return user;
+                Observable<List<Role>> listRoles = roleAsyncService.findRolesByUserId(user.getId()).map(roleRow -> {
+                        return new Role();
+                }).toList();
 
-//                return Observable.zip(Observable.<User>just(user), Observable.<Set<Role>>just(roles),
-//                        (Func2<User, Set<Role>, User) (u, r) -> {
-//                            return u.setRoles(r);
-//                        }
-//                );
-            }).toList();
+                return Observable.zip(Observable.<User>just(user), listRoles,
+                        (Func2<User, List<Role>, User) (u, r) -> {
+                            u.setRoles(new HashSet<Role>(r));
+                            return u;
+                        }
+                );
+            });
 
         } catch (Exception e) {
             return Observable.error(new ExceptionAdapter("Error while getting users from database",

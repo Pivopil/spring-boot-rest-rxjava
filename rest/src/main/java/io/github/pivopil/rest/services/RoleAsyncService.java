@@ -23,6 +23,10 @@ public class RoleAsyncService {
         return postgresAsyncConnectionPool.queryRows(SELECT_ROLES);
     }
 
+    public Observable<Row> findRolesByUserId(Long userId) {
+        return postgresAsyncConnectionPool.queryRows("select * from user_role userToRole inner join role r on userToRole.role_id = r.id where userToRole.user_id = $1", userId);
+    }
+
     public Observable<ResultSet> findAllRolesInDBAsResultSet() {
         return postgresAsyncConnectionPool.querySet(SELECT_ROLES);
     }

@@ -47,10 +47,9 @@ public class UserController {
         DeferredResult<ResponseEntity<List<User>>> deferredResult = new DeferredResult<>();
 
         customUserDetailsService.findAllRx()
-                .onErrorResumeNext(e -> Observable.error(new ExceptionAdapter("Error getting users",
-                        CustomError.DATABASE, HttpStatus.NOT_FOUND)))
-                .subscribe(userView -> deferredResult.setResult(ResponseEntity.accepted().body(userView)),
-                        deferredResult::setErrorResult);
+                .onErrorResumeNext(e -> Observable.error(new ExceptionAdapter("Error getting users", CustomError.DATABASE, HttpStatus.NOT_FOUND)))
+                .toList()
+                .subscribe(userView -> deferredResult.setResult(ResponseEntity.accepted().body(userView)), deferredResult::setErrorResult);
 
         return deferredResult;
     }
