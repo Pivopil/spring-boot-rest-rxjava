@@ -1,4 +1,4 @@
-package io.github.pivopil.rest.services;
+package io.github.pivopil.share.persistence.async;
 
 import com.github.pgasync.Db;
 import com.github.pgasync.ResultSet;
@@ -11,7 +11,7 @@ import rx.Observable;
  * Created on 29.07.16.
  */
 @Service
-public class UserAsyncService {
+public class UserAsyncPersistence {
 
     public static final String SELECT_FROM_USER_TABLE = "select * from user_table";
 

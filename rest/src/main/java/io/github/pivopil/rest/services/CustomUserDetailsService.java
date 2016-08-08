@@ -1,13 +1,12 @@
 package io.github.pivopil.rest.services;
 
-import com.github.pgasync.Db;
-import com.github.pgasync.ResultSet;
-import com.github.pgasync.Row;
 import io.github.pivopil.rest.viewmodels.UserView;
 import io.github.pivopil.share.entities.impl.Role;
 import io.github.pivopil.share.entities.impl.User;
 import io.github.pivopil.share.persistence.RoleRepository;
 import io.github.pivopil.share.persistence.UserRepository;
+import io.github.pivopil.share.persistence.async.RoleAsyncPersistence;
+import io.github.pivopil.share.persistence.async.UserAsyncPersistence;
 import io.github.pivopil.share.throwble.CustomError;
 import io.github.pivopil.share.throwble.ExceptionAdapter;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,7 +17,6 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import rx.Observable;
-import rx.functions.Func2;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -31,11 +29,6 @@ public class CustomUserDetailsService implements UserDetailsService {
     @Autowired
     private RoleRepository roleRepository;
 
-    @Autowired
-    private UserAsyncService userAsyncService;
-
-    @Autowired
-    private RoleAsyncService roleAsyncService;
 
     @Autowired
     public CustomUserDetailsService(UserRepository userRepository) {
@@ -64,38 +57,6 @@ public class CustomUserDetailsService implements UserDetailsService {
         return userRepository.findAll();
     }
 
-    /*
-        http://techblog.netflix.com/2013/02/rxjava-netflix-api.html
-        https://stackoverflow.com/questions/22240406/rxjava-how-to-compose-multiple-observables-with-dependencies-and-collect-all-re
-        https://stackoverflow.com/questions/21890338/when-should-one-use-rxjava-observable-and-when-simple-callback-on-android
-        http://blog.danlew.net/2015/06/22/loading-data-from-multiple-sources-with-rxjava/
-    */
-    public Observable<User> findAllRx() {
-        try {
-            return userAsyncService.findAllUsersInDBAsRows().map(userRow -> {
-                User user = new User();
-                user.setId(userRow.getLong("id"));
-                user.setName(userRow.getString("name"));
-                user.setLogin(userRow.getString("login"));
-
-                Observable<List<Role>> listRoles = roleAsyncService.findRolesByUserId(user.getId()).map(roleRow -> {
-                        return new Role();
-                }).toList();
-
-                return Observable.zip(Observable.<User>just(user), listRoles,
-                        (Func2<User, List<Role>, User) (u, r) -> {
-                            u.setRoles(new HashSet<Role>(r));
-                            return u;
-                        }
-                );
-            });
-
-        } catch (Exception e) {
-            return Observable.error(new ExceptionAdapter("Error while getting users from database",
-                    CustomError.DATABASE, HttpStatus.INTERNAL_SERVER_ERROR, e));
-        }
-//        return userRepository.findAll();
-    }
 
     private final static class UserRepositoryUserDetails extends User implements UserDetails {
 

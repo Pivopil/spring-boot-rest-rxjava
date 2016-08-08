@@ -2,6 +2,7 @@ package io.github.pivopil.rest.controllers;
 
 import io.github.pivopil.REST_API;
 import io.github.pivopil.rest.services.CustomUserDetailsService;
+import io.github.pivopil.rest.services.async.UserAsyncService;
 import io.github.pivopil.rest.viewmodels.UserView;
 import io.github.pivopil.share.entities.impl.User;
 import io.github.pivopil.share.throwble.CustomError;
@@ -22,6 +23,9 @@ public class UserController {
 
     @Autowired
     private CustomUserDetailsService customUserDetailsService;
+
+    @Autowired
+    private UserAsyncService userAsyncService;
 
     @RequestMapping(REST_API.ME)
     public DeferredResult<ResponseEntity<UserView>> me(@AuthenticationPrincipal User user) {
@@ -46,7 +50,7 @@ public class UserController {
 
         DeferredResult<ResponseEntity<List<User>>> deferredResult = new DeferredResult<>();
 
-        customUserDetailsService.findAllRx()
+        userAsyncService.findAllRx()
                 .onErrorResumeNext(e -> Observable.error(new ExceptionAdapter("Error getting users", CustomError.DATABASE, HttpStatus.NOT_FOUND)))
                 .toList()
                 .subscribe(userView -> deferredResult.setResult(ResponseEntity.accepted().body(userView)), deferredResult::setErrorResult);

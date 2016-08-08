@@ -1,4 +1,4 @@
-package io.github.pivopil.rest.services;
+package io.github.pivopil.share.persistence.async;
 
 import com.github.pgasync.Db;
 import com.github.pgasync.ResultSet;
@@ -11,7 +11,7 @@ import rx.Observable;
  * Created on 29.07.16.
  */
 @Service
-public class RoleAsyncService {
+public class RoleAsyncPersistence {
 
     public static final String SELECT_ROLES = "select * from role";
 
@@ -30,21 +30,4 @@ public class RoleAsyncService {
     public Observable<ResultSet> findAllRolesInDBAsResultSet() {
         return postgresAsyncConnectionPool.querySet(SELECT_ROLES);
     }
-
-
-//    public static void main(String... args) {
-//        try {
-//            findAllRolesInDBAsRows().map(row -> row.getString("name")).toList()
-//                    .subscribe(System.out::println);
-//        } catch (Exception e) {
-//            Observable.error(e).subscribe(System.out::println);
-//        } finally {
-//            try {
-//                postgresAsyncConnectionPool.close();
-//            } catch (Exception e) {
-//                e.printStackTrace();
-//            }
-//        }
-//    }
-
 }
